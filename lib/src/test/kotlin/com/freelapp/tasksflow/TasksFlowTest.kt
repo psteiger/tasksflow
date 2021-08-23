@@ -2,8 +2,10 @@ package com.freelapp.tasksflow
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.yield
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -19,6 +21,7 @@ class Tests {
             delay(50L)
         }
             .toList()
+        println(result)
         assert(result.size == 4)
         assertEquals(listOf(25, 50, 75, 100), result)
     }
@@ -65,5 +68,24 @@ class Tests {
         val result = tasksFlow {}.toList()
         assert(result.isEmpty())
         assertEquals(listOf(), result)
+    }
+
+    @Test
+    fun `test runTasks`() = runBlockingTest {
+        flow {
+            runTasks {
+                yield()
+            }
+        }.toList().let {
+            assertEquals(emptyList(), it)
+        }
+        flow {
+            runTasks {
+                task { yield() }
+                task { yield() }
+            }
+        }.toList().let {
+            assertEquals(listOf(50, 100), it)
+        }
     }
 }

@@ -5,11 +5,7 @@ import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
 import kotlin.math.min
 
-interface TasksScope {
-    fun task(block: suspend () -> Any?)
-}
-
-inline fun tasksFlow(crossinline init: suspend TasksScope.() -> Unit): Flow<Int> =
+fun tasksFlow(init: suspend TasksScope.() -> Unit): Flow<Int> =
     flow {
         val scope = TasksScopeImpl()
         scope.init()
@@ -20,15 +16,15 @@ suspend inline fun FlowCollector<Int>.runTasks(block: TasksScope.() -> Unit) {
     runTasks(tasks(block))
 }
 
-suspend inline fun FlowCollector<Int>.runTasks(tasks: List<suspend () -> Any?>) {
+suspend inline fun FlowCollector<Int>.runTasks(tasks: List<suspend TaskScope.() -> Unit>) {
     val unit: Double = 100.0 / tasks.size
     tasks.forEachIndexed { index, task ->
-        task()
+        TaskScope.task()
         val progress = min(((index+1) * unit).toInt(), 100)
         emit(progress)
     }
 }
 
-inline fun tasks(block: TasksScope.() -> Unit): List<suspend () -> Any?> =
+inline fun tasks(block: TasksScope.() -> Unit): List<suspend TaskScope.() -> Unit> =
     TasksScopeImpl().apply(block).build()
 
