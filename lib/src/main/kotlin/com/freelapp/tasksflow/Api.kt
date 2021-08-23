@@ -1,3 +1,5 @@
+package com.freelapp.tasksflow
+
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
@@ -21,7 +23,7 @@ suspend inline fun FlowCollector<Int>.runTasks(block: TasksScope.() -> Unit) {
 suspend inline fun FlowCollector<Int>.runTasks(tasks: List<suspend () -> Any?>) {
     val unit: Double = 100.0 / tasks.size
     tasks.forEachIndexed { index, task ->
-        runCatching { task() }
+        task()
         val progress = min(((index+1) * unit).toInt(), 100)
         emit(progress)
     }

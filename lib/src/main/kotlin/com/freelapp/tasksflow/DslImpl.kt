@@ -1,3 +1,5 @@
+package com.freelapp.tasksflow
+
 @PublishedApi
 internal class TasksScopeImpl : TasksScope {
     private val tasks = mutableListOf<suspend () -> Any?>()
@@ -6,5 +8,6 @@ internal class TasksScopeImpl : TasksScope {
         tasks.add(block)
     }
 
-    fun build() = tasks.toList()
+    fun build(): List<suspend () -> Any?> =
+        tasks.toList()
 }
